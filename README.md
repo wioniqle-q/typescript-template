@@ -1,5 +1,5 @@
 ## KURULUM/START WITH
 
-- yarn install/npm install <package>/i
+- yarn install/npm install
 - npm run start
   
