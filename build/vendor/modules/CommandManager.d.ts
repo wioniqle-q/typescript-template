@@ -1,8 +1,7 @@
 import { BotClient } from "../lib/Client";
-export declare class CommandManager {
-    private _bot;
-    constructor({ _bot }: {
-        _bot: BotClient;
-    });
+import { Command } from "../public/BaseCommand";
+export declare class CommandManager<B extends BotClient = BotClient, C extends Command<B> = Command<B>> {
+    private readonly bot;
+    constructor(bot: B);
     registerCommand(): Promise<void>;
 }

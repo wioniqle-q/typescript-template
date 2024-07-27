@@ -22,15 +22,12 @@ var __importStar = (this && this.__importStar) || function (mod) {
     __setModuleDefault(result, mod);
     return result;
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
-const BaseEvent_1 = __importDefault(require("../../public/BaseEvent"));
+const BaseEvent_1 = require("../../public/BaseEvent");
 const DJS = __importStar(require("discord.js"));
-class ReadyEvent extends BaseEvent_1.default {
-    constructor({ bot }) {
-        super({ bot, name: DJS.Constants.Events.CLIENT_READY });
+class ReadyEvent extends BaseEvent_1.BaseEvent {
+    constructor(bot) {
+        super(bot, DJS.Events.ClientReady);
     }
     async execute(_bot) {
         process.stdout.write("[INFO][events]: ready event executed!\n");

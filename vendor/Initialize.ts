@@ -1,18 +1,18 @@
-import { GatewayIntentBits, AllowedMentionsTypes } from 'discord-api-types/v10';
-import { BotClient } from "./lib/Client";
-import { Options } from 'discord.js';
+import {AllowedMentionsTypes, GatewayIntentBits} from 'discord-api-types/v10';
+import {BotClient} from "./lib/Client";
+import {ClientOptions, Options} from 'discord.js';
 import Controller from './Controller.json';
 
-const clientOptions = {
-    intents: Object.keys(GatewayIntentBits).map((i) => (typeof i === 'string' ? GatewayIntentBits[i as keyof typeof GatewayIntentBits] : i))
-    .reduce((acc, p) => acc | p, 0),
-    AllowedMentions: {
-        parse: AllowedMentionsTypes.User,
+const clientOptions: ClientOptions = {
+    intents: Object.keys(GatewayIntentBits).map((key) =>
+        typeof key === 'string' ? GatewayIntentBits[key as keyof typeof GatewayIntentBits] : key
+    ).reduce((acc, intent) => acc | intent, 0),
+    allowedMentions: {
+        parse: [AllowedMentionsTypes.User],
     },
     failIfNotExists: false,
-    makeCache: Options.cacheWithLimits({}),
-    retryLimit: 3
-}
+    makeCache: Options.cacheWithLimits({})
+};
 
-export const client = new BotClient({ options: clientOptions });
-client.build({ _token: Controller.token });
+const client = new BotClient(clientOptions);
+client.build(Controller.token).catch(e => console.error(e));

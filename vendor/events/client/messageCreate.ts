@@ -1,25 +1,26 @@
-import type { BotClient } from "../../lib/Client";
-import BaseEvent from "../../public/BaseEvent";
+import {BotClient} from "../../lib/Client";
+import {BaseEvent} from "../../public/BaseEvent";
 import * as DJS from "discord.js";
 import Controller from "../../Controller.json";
 
-export default class MessageCreateEvent extends BaseEvent {
-  public constructor({ bot }: { bot: BotClient; }) {
-    super({ bot, name: DJS.Constants.Events.MESSAGE_CREATE });
-  }
+export default class MessageCreateEvent extends BaseEvent<BotClient> {
+    public constructor(bot: BotClient) {
+        super(bot, DJS.Events.MessageCreate);
+    }
 
-  public override async execute(_bot: BotClient, _message: DJS.Message): Promise<any> {
-      if (!_message.guild || _message.author.bot || !_message.content.startsWith(Controller.prefix)) return;
-      
-      const args = _message.content.slice(Controller.prefix.length).trim().split(/ +/g);
-      const commandName = args.shift()!.toLowerCase();
-      const command = _bot.commands.get(commandName);
-      if (!command) return;
+    public override async execute(bot: BotClient, message: DJS.Message): Promise<void> {
+        if (!message.guild || message.author.bot || !message.content.startsWith(Controller.prefix)) return;
 
-      try {
-          await command.execute(_bot, _message, ...args);
-      } catch (error) {
-          _message.channel.send("An error occurred while executing the command!");
-      }
-  }
+        const args = message.content.slice(Controller.prefix.length).trim().split(/ +/g);
+        const commandName = args.shift()!.toLowerCase();
+        const command = bot.commands.get(commandName);
+        if (!command) return;
+
+        try {
+            await command.execute(bot, message, ...args);
+        } catch (error) {
+            console.error("Error executing command:", error);
+            message.channel.send("An error occurred while executing the command!");
+        }
+    }
 }

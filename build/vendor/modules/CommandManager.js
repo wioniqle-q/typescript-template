@@ -30,23 +30,35 @@ exports.CommandManager = void 0;
 const fast_glob_1 = __importDefault(require("fast-glob"));
 const path_1 = require("path");
 class CommandManager {
-    _bot;
-    constructor({ _bot }) {
-        this._bot = _bot;
+    bot;
+    constructor(bot) {
+        this.bot = bot;
     }
     async registerCommand() {
         const files = fast_glob_1.default.sync("./vendor/commands/**/*.ts");
-        for (const file of files) {
+        const promises = files.map(async (file) => {
             delete require.cache[file];
             const { name } = (0, path_1.parse)(`../../${file}`);
-            if (!name)
+            if (!name) {
                 process.stdout.write(`[ERROR][commands]: ${file} is not a valid file!\n`);
-            const command = new (await Promise.resolve().then(() => __importStar(require(`../../${file}`)))).default(this._bot, name);
-            if (!command.execute)
-                process.stdout.write(`[ERROR][commands]: ${file} is not a valid command!\n`);
-            this._bot.commands.set(command.name, command);
-            process.stdout.write(`[INFO][commands]: ${file} registered!\n`);
-        }
+                return;
+            }
+            try {
+                const CommandClass = (await Promise.resolve(`${`../../${file}`}`).then(s => __importStar(require(s)))).default;
+                const command = new CommandClass(this.bot, { name });
+                if (typeof command.execute !== 'function') {
+                    process.stdout.write(`[ERROR][commands]: ${file} is not a valid command!\n`);
+                    return;
+                }
+                this.bot.commands.set(command.name, command);
+                process.stdout.write(`[INFO][commands]: ${file} registered!\n`);
+            }
+            catch (error) {
+                process.stdout.write(`[ERROR][commands]: Failed to load command from ${file}\n`);
+                console.error(error);
+            }
+        });
+        await Promise.all(promises);
     }
 }
 exports.CommandManager = CommandManager;

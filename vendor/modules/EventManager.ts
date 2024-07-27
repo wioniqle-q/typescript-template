@@ -1,32 +1,52 @@
-import { BotClient } from "../lib/Client";
-import BaseEvent from "../public/BaseEvent";
-import glob from "fast-glob";
-import { parse } from "node:path";
+import glob from 'fast-glob';
+import {parse} from 'path';
+import {BotClient} from "../lib/Client";
+import {BaseEvent} from "../public/BaseEvent";
 
-export class EventManager { 
-    private _bot: BotClient;
-    
-    constructor({ _bot }: { _bot: BotClient; }) {
-        this._bot = _bot; 
-    } 
+export class EventManager<B extends BotClient = BotClient> {
+    private readonly bot: B;
+
+    constructor(bot: B) {
+        this.bot = bot;
+    }
 
     public async registerEvent(): Promise<void> {
-        const files = glob.sync("./vendor/events/**/*.ts"); 
-        
-        for (const file of files) { 
-            delete require.cache[file]; 
-            
-            const { name } =  parse(`../../${file}`); 
-            if (!name) process.stdout.write(`[ERROR][events]: ${file} is not a valid file!\n`);
-            
-            const event = new (await import(`../../${file}`)).default(this._bot, name) as BaseEvent; 
-            if (!event.execute) process.stdout.write(`[ERROR][events]: ${file} is not a valid event!\n`);
-            
-            this._bot.on(event.name, async (...args: any[]) => {
-                await event.execute(this._bot, ...args);
-            });
+        const files = glob.sync("./vendor/events/**/*.ts");
 
-            process.stdout.write(`[INFO][events]: ${file} registered!\n`);
-        } 
+        const promises = files.map(async (file) => {
+            delete require.cache[file];
+
+            const {name} = parse(`../../${file}`);
+            if (!name) {
+                process.stdout.write(`[ERROR][events]: ${file} is not a valid file!\n`);
+                return;
+            }
+
+            try {
+                const EventClass = (await import(`../../${file}`)).default;
+                const event = new EventClass(this.bot, {name}) as BaseEvent<any>;
+
+                if (typeof event.execute !== 'function') {
+                    process.stdout.write(`[ERROR][events]: ${file} is not a valid event!\n`);
+                    return;
+                }
+
+                this.bot.on(event.name, async (...args: any[]) => {
+                    try {
+                        await event.execute(this.bot, ...args);
+                    } catch (error) {
+                        process.stdout.write(`[ERROR][events]: Error executing event ${event.name}\n`);
+                        console.error(error);
+                    }
+                });
+
+                process.stdout.write(`[INFO][events]: ${file} registered!\n`);
+            } catch (error) {
+                process.stdout.write(`[ERROR][events]: Failed to load event from ${file}\n`);
+                console.error(error);
+            }
+        });
+
+        await Promise.all(promises);
     }
 }

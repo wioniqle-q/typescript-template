@@ -1,8 +1,6 @@
 import { BotClient } from "../lib/Client";
-export declare class EventManager {
-    private _bot;
-    constructor({ _bot }: {
-        _bot: BotClient;
-    });
+export declare class EventManager<B extends BotClient = BotClient> {
+    private readonly bot;
+    constructor(bot: B);
     registerEvent(): Promise<void>;
 }

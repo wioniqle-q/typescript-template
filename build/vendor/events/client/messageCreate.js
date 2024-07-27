@@ -26,26 +26,27 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const BaseEvent_1 = __importDefault(require("../../public/BaseEvent"));
+const BaseEvent_1 = require("../../public/BaseEvent");
 const DJS = __importStar(require("discord.js"));
 const Controller_json_1 = __importDefault(require("../../Controller.json"));
-class MessageCreateEvent extends BaseEvent_1.default {
-    constructor({ bot }) {
-        super({ bot, name: DJS.Constants.Events.MESSAGE_CREATE });
+class MessageCreateEvent extends BaseEvent_1.BaseEvent {
+    constructor(bot) {
+        super(bot, DJS.Events.MessageCreate);
     }
-    async execute(_bot, _message) {
-        if (!_message.guild || _message.author.bot || !_message.content.startsWith(Controller_json_1.default.prefix))
+    async execute(bot, message) {
+        if (!message.guild || message.author.bot || !message.content.startsWith(Controller_json_1.default.prefix))
             return;
-        const args = _message.content.slice(Controller_json_1.default.prefix.length).trim().split(/ +/g);
+        const args = message.content.slice(Controller_json_1.default.prefix.length).trim().split(/ +/g);
         const commandName = args.shift().toLowerCase();
-        const command = _bot.commands.get(commandName);
+        const command = bot.commands.get(commandName);
         if (!command)
             return;
         try {
-            await command.execute(_bot, _message, ...args);
+            await command.execute(bot, message, ...args);
         }
         catch (error) {
-            _message.channel.send("An error occurred while executing the command!");
+            console.error("Error executing command:", error);
+            message.channel.send("An error occurred while executing the command!");
         }
     }
 }

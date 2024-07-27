@@ -1,21 +1,17 @@
-import type { BotClient } from './../lib/Client';
-import type * as DJS from "discord.js";
-export interface CommandOptions {
-    name: string;
-    description?: string;
-    options?: {
-        [key: string]: string;
-    };
+import type { BotClient } from '../lib/Client';
+export interface CommandOptions<N = string, D = string | undefined> {
+    name: N;
+    description?: D;
 }
-export declare abstract class Command {
-    bot: BotClient;
-    name: string;
-    options: CommandOptions;
-    constructor(bot: BotClient, options: CommandOptions);
+export declare abstract class Command<B extends BotClient, O extends CommandOptions = CommandOptions> {
+    name: O['name'];
+    description?: O['description'];
+    protected bot: B;
+    protected constructor(bot: B, options: O);
     /**
-     * @param {BotClient}
-     * @param {DJS.Message}
-     * @returns {DJS.Awaitable<void>}
+     * @param bot {B}
+     * @param args {unknown[]}
+     * @returns {Promise<void>}
      */
-    abstract execute(bot: BotClient, ...args: unknown[]): DJS.Awaitable<any>;
+    abstract execute(bot: B, ...args: unknown[]): Promise<void>;
 }

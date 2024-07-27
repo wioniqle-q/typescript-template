@@ -1,5 +1,9 @@
 {
-    "token": "",
-    "prefix": "",
-    "owners": []
+  "token": "",
+  "prefix": "",
+  "owners": [
+    ""
+  ],
+  "clientId": "",
+  "guildId": ""
 }

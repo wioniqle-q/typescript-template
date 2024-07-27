@@ -1,17 +1,17 @@
-
-import { BotClient } from './../../lib/Client';
-import { Command } from "../../public/BaseCommand";
+import {BotClient} from '../../lib/Client';
+import {Command} from "../../public/BaseCommand";
 import type * as DJS from "discord.js";
+import PingCommandOptions from "../../interfaces/commands/PingCommandOptions";
 
-export default abstract class BaseCommand extends Command {
-    constructor({ bot }: { bot: BotClient; }) {
+export default class PingCommand extends Command<BotClient, PingCommandOptions> {
+    constructor(bot: BotClient) {
         super(bot, {
-            name: "string",
-            description: "string"
+            name: 'ping',
+            description: 'Ping the bot',
         });
     }
 
-    public override async execute(_bot: BotClient, _message: DJS.Message, ..._args: unknown[]) {
-        return await _message.channel.send("Hello World!");   
+    async execute(_bot: BotClient, _message: DJS.Message, ..._args: unknown[]): Promise<void> {
+        _message.channel.send('Pong!');
     }
 }

@@ -1,15 +1,15 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const BaseCommand_1 = require("../../public/BaseCommand");
-class BaseCommand extends BaseCommand_1.Command {
-    constructor({ bot }) {
+class PingCommand extends BaseCommand_1.Command {
+    constructor(bot) {
         super(bot, {
-            name: "string",
-            description: "string"
+            name: 'ping',
+            description: 'Ping the bot',
         });
     }
     async execute(_bot, _message, ..._args) {
-        return await _message.channel.send("Hello World!");
+        _message.channel.send('Pong!');
     }
 }
-exports.default = BaseCommand;
+exports.default = PingCommand;
