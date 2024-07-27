@@ -1,5 +1,3 @@
-# typescript-template
-
 ## KURULUM/START WITH
 
 - yarn add/npm install <package>
